@@ -5,7 +5,7 @@ const PLAYFAB_SECRET = process.env.PLAYFAB_SECRET || "";
 
 export default async function validateSessionWithPlayFab(
   sessionTicket: string
-): Promise<boolean> {
+): Promise<any> {
   const requestPayload: PlayFabAuthenticateSessionTicketRequest = {
     SessionTicket: sessionTicket,
   };
@@ -23,18 +23,23 @@ export default async function validateSessionWithPlayFab(
     if (!response.ok) {
       const errorData: PlayFabError = await response.json();
       console.error("Error validating session ticket:", errorData.errorMessage);
-      return false;
+      return {
+        error: true,
+        message: errorData.errorMessage
+      }
     }
 
     const responseData: PlayFabAuthenticateSessionTicketResponse =
       await response.json();
 
-    console.log(responseData);
+    //console.log('responseData', responseData);
 
-    // Adjust based on the actual success criteria from PlayFab's response.
-    return responseData.code === 200;
+    return responseData;
   } catch (error) {
     console.error("Exception during session validation:", error);
-    return false;
+    return {
+      error: true,
+      message: 'failed to authenticate session ticket'
+    }
   }
 }
